@@ -4,12 +4,14 @@ require('./config/config');
 const express = require('express');
 const bodyParser = require('body-parser');
 const _ = require('lodash');
+const jwt = require('jsonwebtoken');
+
+const {ObjectID} = require('mongodb');
 
 let {mongoose} = require('./db/mongoose');
 let {Todo} = require('./models/todo');
 let {User} = require('./models/user');
 
-const {ObjectID} = require('mongodb');
 
 let app = express();
 const port = process.env.PORT;
@@ -76,6 +78,7 @@ app.delete('/todos/:id', (req, res) => {
   });
 });
 
+// PATCH /todos/<id>
 app.patch('/todos/:id', (req, res) => {
   let id = req.params.id;
   let body = _.pick(req.body, ['text', 'completed']);
@@ -99,6 +102,21 @@ app.patch('/todos/:id', (req, res) => {
     res.send({todo});
   }).catch((e) => {
     res.status(400).send();
+  });
+});
+
+// POST /users
+app.post('/users', (req, res) => {
+  let body = _.pick(req.body, ['email', 'password']);
+
+  let user = new User(body);
+
+  user.save().then(() =>{
+    return user.generateAuthToken();
+  }).then((token) => {
+    res.header('x-auth', token).send(user);
+  }).catch((e) => {
+    res.status(400).send(e);
   });
 });
 
