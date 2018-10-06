@@ -5,6 +5,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const _ = require('lodash');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
 const {ObjectID} = require('mongodb');
 
@@ -117,7 +118,7 @@ app.post('/users', (req, res) => {
   }).then((token) => {
     res.header('x-auth', token).send(user);
   }).catch((e) => {
-    res.status(400).send(e);
+    res.status(400).send();
   });
 });
 
